@@ -89,9 +89,11 @@ func linkCrawler(url string) {
 			go Download(v, "/Users/Reddy/gg")
 		}
 	}
-
-	wg.Add(1)
-	go linkCrawler(next)
+	if len(next) > 0 {
+		wg.Add(1)
+		go linkCrawler(next)
+		wg.Done()
+	}
 	wg.Wait()
 }
 
