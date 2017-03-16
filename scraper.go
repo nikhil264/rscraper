@@ -114,7 +114,10 @@ func Download(url string, path string) {
 	// req.Header.Set("User-Agent", userAgent)
 	// c := &http.Client{}
 	resp, err := http.Get(url)
-	HandleErr(err)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	defer resp.Body.Close()
 	tmp := strings.SplitAfter(url, "/")
 	path = filepath.Join(path, tmp[len(tmp)-1])
