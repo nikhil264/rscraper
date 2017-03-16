@@ -54,10 +54,10 @@ func LinkCrawl(url string, path string) {
 	err = os.MkdirAll(path, os.ModePerm)
 	HandleErr(err)
 	baseURL = url
-	linkCrawler(url)
+	linkCrawler(url, path)
 }
 
-func linkCrawler(url string) {
+func linkCrawler(url string, path string) {
 	req, err := http.NewRequest("GET", url, nil)
 	HandleErr(err)
 	req.Header.Set("User-Agent", userAgent)
@@ -88,12 +88,12 @@ func linkCrawler(url string) {
 	for _, v := range links {
 		if len(v) > 5 && v[len(v)-4:len(v)-3] == "." {
 			wg.Add(1)
-			go Download(v, "/Users/Reddy/gg")
+			go Download(v, path)
 		}
 	}
 	if len(next) > 0 {
 		wg.Add(1)
-		go linkCrawler(next)
+		go linkCrawler(next, path)
 		wg.Done()
 	}
 	wg.Wait()
