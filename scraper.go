@@ -32,7 +32,7 @@ var wg sync.WaitGroup
 
 //ScrapeImages downloads #num images from the given subreddit tab
 //into a new folder at path
-func (r SubReddit) ScrapeImages(tab string, num uint8, path string, linksFrom string) uint8 {
+func (r SubReddit) ScrapeImages(num uint16, tab string, path string, linksFrom string) uint16 {
 
 	err = os.MkdirAll(path, os.ModePerm)
 	HandleErr(err)
@@ -41,7 +41,7 @@ func (r SubReddit) ScrapeImages(tab string, num uint8, path string, linksFrom st
 	case "top":
 		baseURL = r.Top + "/?t=" + linksFrom
 	}
-	LinkCrawl(baseURL)
+	LinkCrawl(baseURL, path)
 
 	return num + 1
 
@@ -50,7 +50,9 @@ func (r SubReddit) ScrapeImages(tab string, num uint8, path string, linksFrom st
 var baseURL string
 
 //LinkCrawl finds the required links
-func LinkCrawl(url string) {
+func LinkCrawl(url string, path string) {
+	err = os.MkdirAll(path, os.ModePerm)
+	HandleErr(err)
 	baseURL = url
 	linkCrawler(url)
 }
