@@ -119,11 +119,13 @@ func Download(url string, path string) {
 		return
 	}
 	defer resp.Body.Close()
+
+	//create a file
 	tmp := strings.SplitAfter(url, "/")
 	path = filepath.Join(path, tmp[len(tmp)-1])
 	file, err := os.Create(path)
-	defer file.Close()
 	HandleErr(err)
+	defer file.Close()
 
 	_, err = io.Copy(file, resp.Body)
 	HandleErr(err)
