@@ -86,9 +86,17 @@ func linkCrawler(url string, path string) {
 
 	//downloads each data url link if its a file
 	for _, v := range links {
-		if len(v) > 5 && v[len(v)-4:len(v)-3] == "." {
-			wg.Add(1)
-			go Download(v, path)
+		if len(v) > 5 {
+			if v[len(v)-4:len(v)-3] == "." {
+				wg.Add(1)
+				go Download(v, path)
+			} else {
+				if strings.Contains(v, "imgur.com") {
+					v = strings.Replace(v, "gallery", "a", -1) + "/zip"
+					wg.Add(1)
+					go Download(v, path)
+				}
+			}
 		}
 	}
 	if len(next) > 0 {
@@ -121,8 +129,14 @@ func Download(url string, path string) {
 	defer resp.Body.Close()
 
 	//create a file
-	tmp := strings.SplitAfter(url, "/")
-	path = filepath.Join(path, tmp[len(tmp)-1])
+	tmp := strings.Split(url, "/")
+	filename := tmp[len(tmp)-1]
+	if filename == "zip" {
+		path = filepath.Join(path, tmp[len(tmp)-2]+"."+filename)
+	} else {
+		path = filepath.Join(path, filename)
+	}
+	println(path)
 	file, err := os.Create(path)
 	HandleErr(err)
 	defer file.Close()
