@@ -115,30 +115,27 @@ func linkCrawler(url string) (err error) {
 	var next string
 	doc.Find("span .next-button a").Each(func(index int, item *goquery.Selection) {
 		next, _ = item.Attr("href")
-		fmt.Println(strings.Replace(next, baseURL, "", -1))
+		fmt.Println(strings.TrimPrefix(next, baseURL))
 		log.Printf(next)
 	})
 
-	if len(next) > 0 {
-		for n >= 0 {
-			if n < 101 {
-				linkCrawler(next)
-			} else {
-				// downloadsWg.Wait()
-				time.Sleep(time.Second * 5)
-				print("Remaining Dowloads ")
-				print(n)
-				print(" of ")
-				println(total)
-			}
+	for n >= 0 && len(next) > 0 {
+		if n < 101 {
+			linkCrawler(next)
+		} else {
+			// downloadsWg.Wait()
+			time.Sleep(time.Second * 5)
+			print("Remaining Downloads ")
+			print(n)
+			print(" of ")
+			println(total)
 		}
-
-	} else {
-		// println("crawling done")
-		downloadsWg.Wait()
-		n = n - 1
-		// crawlingWg.Done()
 	}
+
+	// println("crawling done")
+	downloadsWg.Wait()
+	n = n - 1
+	// crawlingWg.Done()
 
 	// crawlingWg.Wait()
 	return err
@@ -155,7 +152,7 @@ func Download(url string) (err error) {
 	contentType := resp.Header.Get("Content-Type")
 
 	filename := ""
-	if strings.Contains(contentType, "zip") {
+	if strings.Contains(contentType, "zip") || strings.Contains(contentType, "image") {
 		filename = resp.Header.Get("Content-Disposition")
 		//error may occur if split doesnt zero length slice
 		if filename == "" {
@@ -166,16 +163,7 @@ func Download(url string) (err error) {
 		}
 
 	}
-	if strings.Contains(contentType, "image") {
-		filename = resp.Header.Get("Content-Disposition")
-		if filename == "" {
-			tmp := strings.Split(url, "/")
-			filename = tmp[len(tmp)-1]
-		} else {
-			filename = strings.Split(filename, "\"")[1]
-		}
 
-	}
 	if filename != "" {
 		file, err := os.Create(filename + ".part")
 		if err != nil {
